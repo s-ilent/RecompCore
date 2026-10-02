@@ -409,6 +409,12 @@ bool initialize() {
       SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME, SDL_GetError());
   TRY(SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE, "1"), "Error setting {}: {}",
       SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE, SDL_GetError());
+  // Joystick, gamepad and sensor enumeration (udev and hidapi scans, device
+  // opens) otherwise runs inside SDL_PumpEvents, and on the thread that
+  // presents frames that work has held the game for seconds at a time. SDL's
+  // own thread does it instead.
+  TRY(SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"), "Error setting {}: {}",
+      SDL_HINT_JOYSTICK_THREAD, SDL_GetError());
 
   TRY(SDL_DisableScreenSaver(), "Error disabling screensaver: {}", SDL_GetError());
   if (g_config.allowJoystickBackgroundEvents) {
